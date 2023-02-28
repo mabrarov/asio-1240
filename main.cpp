@@ -98,39 +98,42 @@ struct processing_state
 
   void next_read()
   {
-    dev.async_read(op_id++, asio::bind_executor(executor,
+    dev.async_read(op_id++,
         [this](std::size_t completed_op_id, boost::system::error_code ec)
         {
-          if (ec)
+          asio::defer(executor, [this, completed_op_id, ec]()
           {
-            std::ostringstream buffer;
-            buffer << completed_op_id << ": Error: " << ec.message() << '\n';
-            std::cout << buffer.str() << std::flush;
-            return;
-          }
+            if (ec)
+            {
+              std::ostringstream buffer;
+              buffer << completed_op_id << ": Error: " << ec.message() << '\n';
+              std::cout << buffer.str() << std::flush;
+              return;
+            }
 
-          // Launch next async op and come back on this executor
-          next_read();
+            // Launch next async op and come back on this executor
+            next_read();
 
-          // Do some work on read stuff
-          {
-            std::ostringstream buffer;
-            buffer << completed_op_id << ": Processing thread ID: "
-                << std::this_thread::get_id() << '\n';
-            std::cout << buffer.str() << std::flush;
-          }
-          const auto start = chrono::high_resolution_clock::now();
-          while ((chrono::high_resolution_clock::now() - start)
-              < chrono::seconds(2))
-          {
-            std::this_thread::sleep_for(chrono::seconds(1));
-          }
-          {
-            std::ostringstream buffer;
-            buffer << completed_op_id << ": Processing completed\n";
-            std::cout << buffer.str() << std::flush;
-          }
-        }));
+            // Do some work on read stuff
+            {
+              std::ostringstream buffer;
+              buffer << completed_op_id << ": Processing thread ID: "
+                  << std::this_thread::get_id() << '\n';
+              std::cout << buffer.str() << std::flush;
+            }
+            const auto start = chrono::high_resolution_clock::now();
+            while ((chrono::high_resolution_clock::now() - start)
+                < chrono::seconds(2))
+            {
+              std::this_thread::sleep_for(chrono::seconds(1));
+            }
+            {
+              std::ostringstream buffer;
+              buffer << completed_op_id << ": Processing completed\n";
+              std::cout << buffer.str() << std::flush;
+            }
+          });
+        });
   }
 };
 
