@@ -1,7 +1,5 @@
 #if defined(WIN32)
-
 #include <tchar.h>
-
 #endif
 
 #include <cstdlib>
@@ -140,7 +138,6 @@ struct processing_state
 }
 
 #if defined(WIN32) && !defined(__MINGW32__)
-
 int _tmain(int argc, _TCHAR* argv[])
 #else
 int main(int argc, char* argv[])
