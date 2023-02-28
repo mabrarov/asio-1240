@@ -46,7 +46,7 @@ struct device
               std::ostringstream buffer;
               buffer << op_id << ": Posting thread ID: "
                   << std::this_thread::get_id() << '\n';
-              std::cout << buffer.str();
+              std::cout << buffer.str() << std::flush;
             }
             state = reading;
             asio::post(executor, std::move(self));
@@ -60,7 +60,7 @@ struct device
               std::ostringstream buffer;
               buffer << op_id << ": Reading thread ID: "
                   << std::this_thread::get_id() << '\n';
-              std::cout << buffer.str();
+              std::cout << buffer.str() << std::flush;
             }
             // Do some crazy operation
             const auto start = chrono::high_resolution_clock::now();
@@ -72,7 +72,7 @@ struct device
             {
               std::ostringstream buffer;
               buffer << op_id << ": Reading completed\n";
-              std::cout << buffer.str();
+              std::cout << buffer.str() << std::flush;
             }
           }
 
@@ -105,7 +105,7 @@ struct processing_state
           {
             std::ostringstream buffer;
             buffer << completed_op_id << ": Error: " << ec.message() << '\n';
-            std::cout << buffer.str();
+            std::cout << buffer.str() << std::flush;
             return;
           }
 
@@ -117,7 +117,7 @@ struct processing_state
             std::ostringstream buffer;
             buffer << completed_op_id << ": Processing thread ID: "
                 << std::this_thread::get_id() << '\n';
-            std::cout << buffer.str();
+            std::cout << buffer.str() << std::flush;
           }
           const auto start = chrono::high_resolution_clock::now();
           while ((chrono::high_resolution_clock::now() - start)
@@ -128,7 +128,7 @@ struct processing_state
           {
             std::ostringstream buffer;
             buffer << completed_op_id << ": Processing completed\n";
-            std::cout << buffer.str();
+            std::cout << buffer.str() << std::flush;
           }
         }));
   }
