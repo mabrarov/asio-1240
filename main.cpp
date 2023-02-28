@@ -31,7 +31,7 @@ struct device
   auto async_read(std::size_t op_id, CompletionToken&& token)
   {
     return asio::async_compose<CompletionToken,
-        void(std::size_t op_id, boost::system::error_code)>(
+        void(std::size_t, boost::system::error_code)>(
         [this, state = posting, op_id](auto& self,
             boost::system::error_code ec = {}) mutable
         {
@@ -64,10 +64,10 @@ struct device
             }
             // Do some crazy operation
             const auto start = chrono::high_resolution_clock::now();
-            while ((chrono::high_resolution_clock::now() - start)
+            while (chrono::high_resolution_clock::now() - start
                 < chrono::seconds(2))
             {
-              std::this_thread::sleep_for(chrono::seconds(1));
+              std::this_thread::sleep_for(chrono::microseconds(100));
             }
             {
               std::ostringstream buffer;
@@ -122,10 +122,10 @@ struct processing_state
               std::cout << buffer.str() << std::flush;
             }
             const auto start = chrono::high_resolution_clock::now();
-            while ((chrono::high_resolution_clock::now() - start)
+            while (chrono::high_resolution_clock::now() - start
                 < chrono::seconds(2))
             {
-              std::this_thread::sleep_for(chrono::seconds(1));
+              std::this_thread::sleep_for(chrono::microseconds(100));
             }
             {
               std::ostringstream buffer;
@@ -157,7 +157,7 @@ int main(int argc, char* argv[])
 
   for (std::size_t i = 0; i < thread_count - 1; ++i)
   {
-    pool.emplace_back([&]
+    pool.emplace_back([&ctx]
     {
       ctx.run();
     });
